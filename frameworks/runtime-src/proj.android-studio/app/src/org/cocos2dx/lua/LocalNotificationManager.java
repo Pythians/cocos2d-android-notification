@@ -1,20 +1,11 @@
 package org.cocos2dx.lua;
 
 import android.content.SharedPreferences;
-import android.net.Uri;
-import android.preference.PreferenceManager;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedList;
 
-/**
- * Created by wjdev02 on 15/12/28.
- */
 public class LocalNotificationManager {
 
-    class Notice {
+     class Notice {
         String _key;
         int _time;
         long _now;
@@ -46,17 +37,45 @@ public class LocalNotificationManager {
     }
 
     LinkedList<Notice> notifications;
+    SharedPreferences preferences;
 
-    public boolean addLocalNotice(Notice notice){
-        return notifications.add(notice);
+    public boolean addLocalNotice(String key, int time, String content, String title, String sound){
+        Notice notice = new Notice(key,time,content,title,sound);
+        if (notifications.add(notice)){
+            saveNoticeToFile();
+            return true;
+        }else
+            return false;
+    }
+
+    public String allNoticeToString(){
+        String string = "{";
+
+        int size = notifications.size();
+        for (int i = 0; i <size; i++) {
+            Notice notice = notifications.get(i);
+            string += "{";
+            string += "key='" + notice._key + "',";
+            string += "time=" + notice._time + ",";
+            string += "content='" + notice._content + "',";
+            string += "title='" + notice._title + "',";
+            string += "sound='" + notice._sound + "',";
+            string += "},";
+        }
+
+        string += "}";
+        saveNoticeToFile();
+        return string;
     }
 
     public int getLocalNoticeNum(){
+        saveNoticeToFile();
         return notifications.size();
     }
 
     public void cleanLocalNotice(){
         notifications.clear();
+        saveNoticeToFile();
     }
 
     public boolean cleanLocalNotice(String key){
@@ -64,14 +83,17 @@ public class LocalNotificationManager {
         for (int i = 0; i < size; i++) {
             Notice notice = notifications.get(i);
             if (notice._key.equals(key)){
-                return notifications.remove(notice);
+                notifications.remove(notice);
+                saveNoticeToFile();
+                return true;
             }
         }
         return false;
     }
 
-    public void saveNoticeToFile(SharedPreferences preferences){
+    public void saveNoticeToFile(){
         SharedPreferences.Editor editor = preferences.edit();
+        editor.clear();
         if (!notifications.isEmpty()){
             int size = notifications.size();
             editor.putInt("size", size);
@@ -84,17 +106,13 @@ public class LocalNotificationManager {
                 editor.putString("title" + i, notice._title);
                 editor.putString("sound" + i, notice._sound);
             }
-        }else{
-            editor.clear();
         }
         editor.apply();
     }
 
-    public LocalNotificationManager(){
-        notifications = new LinkedList<Notice>();
-    }
-    public LocalNotificationManager(SharedPreferences preferences){
-        notifications = new LinkedList<Notice>();
+    public LocalNotificationManager(SharedPreferences pre){
+        preferences = pre;
+        notifications = new LinkedList<>();
 
         int size = preferences.getInt("size", 0);
         for (int i = 0; i < size; i++) {

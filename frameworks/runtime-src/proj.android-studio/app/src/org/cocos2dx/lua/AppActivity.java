@@ -28,6 +28,7 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import org.cocos2dx.lib.Cocos2dxActivity;
 
@@ -123,10 +124,41 @@ public class AppActivity extends Cocos2dxActivity{
     }
 
     public static int getLocalNotificationNum(){
-        LocalNotificationManager manager = new LocalNotificationManager(PreferenceManager.getDefaultSharedPreferences(AppActivity.getContext()));
-//        manager.saveNoticeToFile(PreferenceManager.getDefaultSharedPreferences(AppActivity.getContext()));
+        LocalNotificationManager manager = new LocalNotificationManager(
+                PreferenceManager.getDefaultSharedPreferences(AppActivity.getContext()));
         return manager.getLocalNoticeNum();
     }
+
+    public static boolean pushLocalNotification(String action,
+                                                String content,
+                                                String key,
+                                                String sound,
+                                                int time,
+                                                String title){
+        LocalNotificationManager manager= new LocalNotificationManager(
+                PreferenceManager.getDefaultSharedPreferences(AppActivity.getContext()));
+        return manager.addLocalNotice(key, time, content, title, sound);
+    }
+
+    public static boolean clearNoticeByKey(String key){
+        LocalNotificationManager manager = new LocalNotificationManager(
+                PreferenceManager.getDefaultSharedPreferences(AppActivity.getContext()));
+        return manager.cleanLocalNotice(key);
+    }
+
+    public static void clearAllNotices(){
+        new LocalNotificationManager(
+                PreferenceManager.getDefaultSharedPreferences(
+                        AppActivity.getContext())
+        ).cleanLocalNotice();
+    }
+
+    public static String getAllNotices() {
+        return new LocalNotificationManager(
+                PreferenceManager.getDefaultSharedPreferences(
+                        AppActivity.getContext())).allNoticeToString();
+    }
+
 
     private static native boolean nativeIsLandScape();
     private static native boolean nativeIsDebug();
