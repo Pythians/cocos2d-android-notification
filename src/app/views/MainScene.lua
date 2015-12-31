@@ -11,11 +11,11 @@ end
 local function pushLocalNotification()
     local push={
         key="soldierInfo",
-        time=1000,
+        time=10,
         action="立刻征战!",
         content="军队训练完毕,准备开战!",
         title="最新军情",
-        sound="", --默认声音
+        sound="sound.mp3", --默认声音
         badgeNum=1,
     }
     platformTools.pushLocalNotification(push)

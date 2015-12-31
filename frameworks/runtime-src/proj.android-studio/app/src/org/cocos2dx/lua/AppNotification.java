@@ -11,9 +11,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
 import org.cocos2dx.notice.R;
+
 
 
 public class AppNotification {
@@ -25,7 +25,6 @@ public class AppNotification {
                               final String title,
                               final String text,
                               final String sound) {
-        Log.d(NOTIFICATION_TAG, "notify: " + sound);
 //        final Resources res = context.getResources();
 //        final Bitmap picture = BitmapFactory.decodeResource(res, R.drawable.example_picture);
 
@@ -44,6 +43,9 @@ public class AppNotification {
                                 new Intent(context, AppActivity.class),
                                 PendingIntent.FLAG_UPDATE_CURRENT))
                 .setAutoCancel(true);
+//        if (sound != null){
+//            builder.setSound(Uri.parse("file:///android_asset/sound.mp3"));
+//        }
         notify(context, builder.build());
     }
 

@@ -28,6 +28,7 @@ import java.util.ArrayList;
 
 import org.cocos2dx.lib.Cocos2dxActivity;
 
+import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
@@ -40,7 +41,6 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Log;
@@ -122,23 +122,33 @@ public class AppActivity extends Cocos2dxActivity{
     @Override
     protected void onStart() {
         super.onStart();
-        Log.d("Notice", "onStart ");
-        Intent intent = new Intent(this,AppBroadcast.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
-        AlarmManager manager = (AlarmManager)getSystemService(ALARM_SERVICE);
-        manager.cancel(pendingIntent);
+//        Intent intent = new Intent(this,AppBroadcast.class);
+//        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+//        AlarmManager manager = (AlarmManager)getSystemService(ALARM_SERVICE);
+//        manager.cancel(pendingIntent);
     }
 
     @Override
     protected void onStop() {
-        super.onStop();
-        Intent intent = new Intent(this,AppBroadcast.class);
-        intent.putExtra(AppBroadcast.TITLE,"appTitle");
-        intent.putExtra(AppBroadcast.CONTNT,"appContent");
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
         AlarmManager manager = (AlarmManager)getSystemService(ALARM_SERVICE);
-        manager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 1000,pendingIntent);
-        Log.d("Notice", "onStop");
+        LocalNotificationManager notificationManager = new LocalNotificationManager(
+                PreferenceManager.getDefaultSharedPreferences(this));
+        LocalNotificationManager.Notice notice = notificationManager.getFirstNotice();
+
+        if (notice != null){
+            ActivityManager activityManager = (ActivityManager)getSystemService(Context.ACTIVITY_SERVICE);
+            ActivityManager.RunningAppProcessInfo app = activityManager.getRunningAppProcesses().get(0);
+
+            Intent intent = new Intent(this,AppBroadcast.class);
+            intent.putExtra(AppBroadcast.TITLE,notice.getTitle());
+            intent.putExtra(AppBroadcast.CONTNT, notice.getContent());
+            intent.putExtra(AppBroadcast.SOUND, notice.getSound());
+            intent.putExtra(AppBroadcast.SDKVER, app.processName);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+            manager.set(AlarmManager.RTC_WAKEUP, notice.getWhen(), pendingIntent);
+            notificationManager.removeNotice(notice);
+        }
+        super.onStop();
     }
 
     public static int getLocalNotificationNum(){
