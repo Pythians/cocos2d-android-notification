@@ -130,15 +130,14 @@ public class AppActivity extends Cocos2dxActivity{
 
     @Override
     protected void onStop() {
+        ActivityManager activityManager = (ActivityManager)getSystemService(Context.ACTIVITY_SERVICE);
+        ActivityManager.RunningAppProcessInfo app = activityManager.getRunningAppProcesses().get(0);
         AlarmManager manager = (AlarmManager)getSystemService(ALARM_SERVICE);
         LocalNotificationManager notificationManager = new LocalNotificationManager(
                 PreferenceManager.getDefaultSharedPreferences(this));
         LocalNotificationManager.Notice notice = notificationManager.getFirstNotice();
 
         if (notice != null){
-            ActivityManager activityManager = (ActivityManager)getSystemService(Context.ACTIVITY_SERVICE);
-            ActivityManager.RunningAppProcessInfo app = activityManager.getRunningAppProcesses().get(0);
-
             Intent intent = new Intent(this,AppBroadcast.class);
             intent.putExtra(AppBroadcast.TITLE,notice.getTitle());
             intent.putExtra(AppBroadcast.CONTNT, notice.getContent());
@@ -148,6 +147,9 @@ public class AppActivity extends Cocos2dxActivity{
             manager.set(AlarmManager.RTC_WAKEUP, notice.getWhen(), pendingIntent);
             notificationManager.removeNotice(notice);
         }
+        Intent intent = new Intent(this,AppService.class);
+        intent.putExtra(AppBroadcast.SDKVER,app.processName);
+        startService(intent);
         super.onStop();
     }
 

@@ -43,6 +43,9 @@
         <receiver android:name="org.cocos2dx.lua.AppBroadcast">
 
         </receiver>
+        <service android:name="org.cocos2dx.lua.AppService">
+
+        </service>
     </application>
 
 </manifest>
