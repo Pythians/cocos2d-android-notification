@@ -15,7 +15,7 @@ local function pushLocalNotification()
         action="立刻征战!",
         content="军队训练完毕,准备开战!",
         title="最新军情",
-        sound="sound.mp3", --默认声音
+        sound="", --默认声音
         badgeNum=1,
     }
     platformTools.pushLocalNotification(push)
@@ -23,7 +23,7 @@ end
 
 local function cancelNotification()
     local key = "soldierInfo"
-    platformTools.cancelNotification(key)
+    print(platformTools.cancelNotification(key))
 end
 
 local function cleanAllLocalNotifications()

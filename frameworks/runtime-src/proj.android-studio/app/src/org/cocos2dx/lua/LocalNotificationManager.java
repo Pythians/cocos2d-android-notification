@@ -21,7 +21,7 @@ public class LocalNotificationManager {
              _time = time;
              _content = content;
              _title = title;
-             _sound = null;
+             _sound = sound;
              _when = System.currentTimeMillis() + 1000 * _time;
          }
 
@@ -92,9 +92,7 @@ public class LocalNotificationManager {
     public String allNoticeToString(){
         String string = "{";
 
-        int size = notifications.size();
-        for (int i = 0; i <size; i++) {
-            Notice notice = notifications.get(i);
+        for (Notice notice : notifications){
             string += "{";
             string += "key='" + notice.getKey() + "',";
             string += "time=" + notice.getTime() + ",";
@@ -117,17 +115,19 @@ public class LocalNotificationManager {
         saveNoticeToFile();
     }
 
-    public boolean cleanLocalNotice(String key){
-        int size = notifications.size();
-        for (int i = 0; i < size; i++) {
-            Notice notice = notifications.get(i);
-            if (notice._key.equals(key)){
-                notifications.remove(notice);
-                saveNoticeToFile();
-                return true;
+    public int cleanLocalNotice(String key){
+        LinkedList<Notice> notices = new LinkedList<Notice>();
+        int t = 0;
+        for (Notice notice : notifications) {
+            if (notice.getKey().equals(key)) {
+                t+=1;
+                notices.add(notice);
             }
         }
-        return false;
+        for (Notice notice : notices){
+            removeNotice(notice);
+        }
+        return t;
     }
 
     public void removeNotice(Notice notice){

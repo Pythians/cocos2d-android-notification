@@ -11,6 +11,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import org.cocos2dx.notice.R;
 
@@ -18,7 +19,7 @@ import org.cocos2dx.notice.R;
 
 public class AppNotification {
 
-    private static final String NOTIFICATION_TAG = "App";
+    private static String NOTIFICATION_TAG = "App";
 
     public static void notify(final Context context,
                               final String ticker,
@@ -29,7 +30,7 @@ public class AppNotification {
 //        final Bitmap picture = BitmapFactory.decodeResource(res, R.drawable.example_picture);
 
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
-                .setDefaults(Notification.DEFAULT_ALL)
+//                .setDefaults(Notification.DEFAULT_ALL)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setSmallIcon(R.mipmap.ic_launcher)
 //                .setLargeIcon(picture)
@@ -43,9 +44,13 @@ public class AppNotification {
                                 new Intent(context, AppActivity.class),
                                 PendingIntent.FLAG_UPDATE_CURRENT))
                 .setAutoCancel(true);
-//        if (sound != null){
-//            builder.setSound(Uri.parse("file:///android_asset/sound.mp3"));
-//        }
+        if (sound.equals("")) {
+            builder.setDefaults(Notification.DEFAULT_SOUND);
+        } else if (sound.equals("NoSound")) {
+            Log.d("Notice:", "No play sound");
+        } else {
+            Log.d("Notice:", sound);
+        }
         notify(context, builder.build());
     }
 
@@ -53,6 +58,7 @@ public class AppNotification {
     private static void notify(final Context context, final Notification notification) {
         final NotificationManager nm = (NotificationManager) context
                 .getSystemService(Context.NOTIFICATION_SERVICE);
+        NOTIFICATION_TAG += "1";
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ECLAIR) {
             nm.notify(NOTIFICATION_TAG, 0, notification);
         } else {
@@ -64,10 +70,11 @@ public class AppNotification {
     public static void cancel(final Context context) {
         final NotificationManager nm = (NotificationManager) context
                 .getSystemService(Context.NOTIFICATION_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ECLAIR) {
-            nm.cancel(NOTIFICATION_TAG, 0);
-        } else {
-            nm.cancel(NOTIFICATION_TAG.hashCode());
-        }
+        nm.cancelAll();
+        // if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ECLAIR) {
+        //     nm.cancel(NOTIFICATION_TAG, 0);
+        // } else {
+        //     nm.cancel(NOTIFICATION_TAG.hashCode());
+        // }
     }
 }

@@ -119,22 +119,30 @@ public class AppActivity extends Cocos2dxActivity{
         return hostIPAdress;
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-//        Intent intent = new Intent(this,AppBroadcast.class);
-//        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
-//        AlarmManager manager = (AlarmManager)getSystemService(ALARM_SERVICE);
-//        manager.cancel(pendingIntent);
-    }
+    
+    public static boolean isForeground = false;
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        isForeground = true;
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        isForeground = false;
+    }
+    @Override
+    protected void onStart() {
+        AppNotification.cancel(AppActivity.getContext());
+        super.onStart();
+    }
+    @Override
     protected void onStop() {
-        ActivityManager activityManager = (ActivityManager)getSystemService(Context.ACTIVITY_SERVICE);
-        ActivityManager.RunningAppProcessInfo app = activityManager.getRunningAppProcesses().get(0);
         AlarmManager manager = (AlarmManager)getSystemService(ALARM_SERVICE);
         LocalNotificationManager notificationManager = new LocalNotificationManager(
                 PreferenceManager.getDefaultSharedPreferences(this));
+        // 获取最早的通知
         LocalNotificationManager.Notice notice = notificationManager.getFirstNotice();
 
         if (notice != null){
@@ -142,16 +150,20 @@ public class AppActivity extends Cocos2dxActivity{
             intent.putExtra(AppBroadcast.TITLE,notice.getTitle());
             intent.putExtra(AppBroadcast.CONTNT, notice.getContent());
             intent.putExtra(AppBroadcast.SOUND, notice.getSound());
-            intent.putExtra(AppBroadcast.SDKVER, app.processName);
+            intent.putExtra(AppBroadcast.SDKVER, getPackageName());
             PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+            // 定时发送
             manager.set(AlarmManager.RTC_WAKEUP, notice.getWhen(), pendingIntent);
+            // 发送后删除这条通知
             notificationManager.removeNotice(notice);
         }
+        // 启动服务，服务已存在，执行服务中的任务
         Intent intent = new Intent(this,AppService.class);
-        intent.putExtra(AppBroadcast.SDKVER,app.processName);
-        startService(intent);
+        intent.putExtra(AppBroadcast.SDKVER, getPackageName());
+//        startService(intent);
         super.onStop();
     }
+
 
     public static int getLocalNotificationNum(){
         LocalNotificationManager manager = new LocalNotificationManager(
@@ -159,18 +171,17 @@ public class AppActivity extends Cocos2dxActivity{
         return manager.getLocalNoticeNum();
     }
 
-    public static boolean pushLocalNotification(String action,
-                                                String content,
+    public static boolean pushLocalNotification(int time,
                                                 String key,
-                                                String sound,
-                                                int time,
-                                                String title){
+                                                String title,
+                                                String content,
+                                                String sound){
         LocalNotificationManager manager= new LocalNotificationManager(
                 PreferenceManager.getDefaultSharedPreferences(AppActivity.getContext()));
         return manager.addLocalNotice(key, time, content, title, sound);
     }
 
-    public static boolean clearNoticeByKey(String key){
+    public static int clearNoticeByKey(String key){
         LocalNotificationManager manager = new LocalNotificationManager(
                 PreferenceManager.getDefaultSharedPreferences(AppActivity.getContext()));
         return manager.cleanLocalNotice(key);
@@ -181,6 +192,7 @@ public class AppActivity extends Cocos2dxActivity{
                 PreferenceManager.getDefaultSharedPreferences(
                         AppActivity.getContext())
         ).cleanLocalNotice();
+        AppNotification.cancel(AppActivity.getContext());
     }
 
     public static String getAllNotices() {

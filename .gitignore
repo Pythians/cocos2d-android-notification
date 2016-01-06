@@ -3,7 +3,7 @@ runtime
 .project
 frameworks/cocos2d-x
 src/cocos/
-frameworks/runtime-src/proj.android-studio/app/assets/src/cocos/
+frameworks/runtime-src/proj.android-studio/app/assets/
 *.o
 *.a
 *.so

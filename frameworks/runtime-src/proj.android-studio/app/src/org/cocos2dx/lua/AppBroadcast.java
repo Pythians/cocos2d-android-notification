@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import java.util.List;
 
 
 public class AppBroadcast extends BroadcastReceiver {
@@ -40,16 +39,16 @@ public class AppBroadcast extends BroadcastReceiver {
         }
 
 
-        boolean foreground = false;
+        // boolean foreground = false;
 //        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT_WATCH){
-            ActivityManager activityManager = (ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);
-            List<ActivityManager.RunningAppProcessInfo> apps = activityManager.getRunningAppProcesses();
-            for (ActivityManager.RunningAppProcessInfo app : apps){
-                if(app.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
-                        && app.processName.equals(intent.getStringExtra(SDKVER))){
-                    foreground = true;
-                }
-            }
+            // ActivityManager activityManager = (ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);
+            // List<ActivityManager.RunningAppProcessInfo> apps = activityManager.getRunningAppProcesses();
+            // for (ActivityManager.RunningAppProcessInfo app : apps){
+            //     if(app.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
+            //             && app.processName.equals(intent.getStringExtra(SDKVER))){
+            //         foreground = true;
+            //     }
+            // }
 //        }else {
 //            ActivityManager activityManager = (ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);
 //            ActivityManager.RunningTaskInfo info = activityManager.getRunningTasks(1).get(0);
@@ -57,8 +56,9 @@ public class AppBroadcast extends BroadcastReceiver {
 //            if (name.equals(intent.getStringExtra(SDKVER)))
 //                foreground = true;
 //        }
+        // if (!foreground) {
 
-        if (!foreground) {
+        if (!AppActivity.isForeground){
             AppNotification.notify(
                     context,
                     "Cocos2d",
